@@ -49,6 +49,58 @@ Desde la carpeta "backend/"
 ```
 pnpm dev
 ```
+# 1. Modelo de datos
+
+La aplicación utiliza PostgreSQL 15+ y consta con las siguientes entidades:
+- customers
+- products
+- orders
+- order_items
+
+## DDL
+```
+CREATE TABLE customers (
+    customer_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    email TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    city TEXT NOT NULL
+);
+
+CREATE TABLE products (
+    product_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    sku TEXT NOT NULL,
+    name TEXT NOT NULL,
+    price NUMERIC(10, 2) NOT NULL,
+    stock INTEGER NOT NULL
+);
+
+CREATE TABLE orders (
+    order_ref TEXT PRIMARY KEY,
+    customer_email TEXT NOT NULL,
+    status TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT orders_customer_email_fkey
+        FOREIGN KEY (customer_email)
+        REFERENCES customers(email)
+);
+
+CREATE TABLE order_items (
+    order_item_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    order_ref TEXT NOT NULL,
+    sku TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    unit_price NUMERIC(10, 2) NOT NULL,
+
+    CONSTRAINT order_items_order_ref_fkey
+        FOREIGN KEY (order_ref)
+        REFERENCES orders(order_ref),
+
+    CONSTRAINT order_items_sku_fkey
+        FOREIGN KEY (sku)
+        REFERENCES products(sku)
+);
+```
 
 # 2. Persistencia
 

@@ -153,3 +153,65 @@ ordersRouter.post(
     }
   },
 );
+
+ordersRouter.get("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const orderResult = await pool.query(
+      `
+      SELECT 
+      o.order_ref, o.status, o.created_at,
+      c.customer_id, c.email AS customer_email, c.full_name AS customer_name, c.city AS customer_city,
+      oi.order_item_id, oi.quantity, oi.unit_price,
+      p.product_id, p.sku, p.name AS product_name
+      FROM orders o
+      INNER JOIN customers c
+      ON c.email = o.customer_email
+      INNER JOIN order_items oi
+      ON oi.order_ref = o.order_ref
+      INNER JOIN products p
+      ON p.sku = oi.sku
+      WHERE o.order_ref = $1
+      ORDER BY oi.order_item_id;
+      `,
+      [id],
+    );
+
+    if (orderResult.rowCount === 0) {
+      return res.status(404).json({
+        error: "No se ha encontrado el pedido o no existe",
+      });
+    }
+
+    const orderInfo = orderResult.rows[0];
+
+    const order = {
+      order_ref: orderInfo.order_ref,
+      status: orderInfo.status,
+      created_at: orderInfo.created_at,
+      customer: {
+        customer_id: orderInfo.customer_id,
+        email: orderInfo.customer_email,
+        full_name: orderInfo.customer_name,
+        city: orderInfo.customer_city,
+      },
+      items: orderResult.rows.map((row) => ({
+        order_item_id: row.order_item_id,
+        product_id: row.product_id,
+        sku: row.sku,
+        product_name: row.product_name,
+        quantity: row.quantity,
+        unit_price: row.unit_price,
+      })),
+    };
+
+    return res.status(200).json(order);
+  } catch (error) {
+    console.error("Error obteniendo el pedido:", error);
+
+    return res.status(500).json({
+      error: "No se pudo obtener el pedido",
+    });
+  }
+});

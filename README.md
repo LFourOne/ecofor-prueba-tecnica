@@ -1,3 +1,55 @@
+# Instalación y ejecución
+## Requisitos
+- Node.js 20+
+- pnpm
+- PostgreSQL 15+
+
+## 1. Clonar el repositorio
+
+```
+git clone https://github.com/LFourOne/ecofor-prueba-tecnica.git
+cd ecofor-prueba-tecnica
+```
+
+## 2. Instalar dependencias
+```
+pnpm install
+```
+
+## 3. Configurar variables de entorno (.env)
+Crear el archivo ".env" dentro de backend/ con las credenciales de PostgreSQL:
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=prueba_tecnica
+DB_USER=tu_usuario
+DB_PASSWORD=tu_password
+```
+
+## 4. Agregar los datasets
+Los archivos ".csv" no fueron considerados debido a su tamaño.
+```
+backend/
+└── app/
+    └── dataset/
+        ├── customers.csv
+        ├── products.csv
+        ├── orders.csv
+        └── order_items.csv
+```
+
+## 5. Ejecutar la ingesta de datos
+Desde la carpeta "backend/"
+```
+node app/dataIngest/import.ts
+```
+
+## 6. Iniciar el servidor
+Desde la carpeta "backend/"
+```
+pnpm dev
+```
+
 # 2. Persistencia
 
 El modelo utiliza identificadores técnicos generados por PostgreSQL para las entidades customers, products y order_items, debido a que algunos campos proporcionados por los datasets no son únicos.
@@ -17,19 +69,13 @@ La ingesta utiliza COPY de PostgreSQL hacia tablas temporales de staging, evitan
 
 La ejecución completa se realiza dentro de una única transacción:
 
-BEGIN
-↓
-TRUNCATE ... RESTART IDENTITY
-↓
-customers
-↓
-products
-↓
-orders
-↓
-order_items
-↓
-COMMIT
+1. **BEGIN**
+2. `TRUNCATE ... RESTART IDENTITY`
+3. `customers`
+4. `products`
+5. `orders`
+6. `order_items`
+7. **COMMIT**
 
 Si alguna etapa falla, se ejecuta ROLLBACK, evitando dejar un estado parcialmente actualizado.
 

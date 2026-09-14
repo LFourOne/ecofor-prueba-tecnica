@@ -1,0 +1,23 @@
+{
+	"type": "module",
+	"dependencies": {
+		"cors": "^2.8.6",
+		"express": "^5.2.1",
+		"express-validator": "^7.3.2",
+		"pg": "^8.23.0",
+		"pg-copy-streams": "^7.0.0"
+	},
+	"devDependencies": {
+		"@types/cors": "^2.8.19",
+		"@types/express": "^5.0.6",
+		"@types/node": "^22.20.2",
+		"@types/pg": "^8.23.1",
+		"@types/pg-copy-streams": "^1.2.5",
+		"dotenv": "^17.4.2",
+		"tsx": "^4.23.13",
+		"typescript": "^7.0.2"
+	},
+	"scripts": {
+		"dev": "tsx watch app/app.ts"
+	}
+}

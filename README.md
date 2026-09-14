@@ -1,4 +1,4 @@
-2. Persistencia
+# 2. Persistencia
 
 El modelo utiliza identificadores técnicos generados por PostgreSQL para las entidades customers, products y order_items, debido a que algunos campos proporcionados por los datasets no son únicos.
 
@@ -11,7 +11,7 @@ Los campos email, sku y la combinación (order_ref, sku) no se utilizan como cla
 
 Durante el análisis también se detectaron 15.000 order_ref presentes en order_items que no existen en orders. Por este motivo no se utiliza una FK entre ambas tablas, ya que impediría almacenar la totalidad del dataset proporcionado.
 
-Ingesta
+## Ingesta
 
 La ingesta utiliza COPY de PostgreSQL hacia tablas temporales de staging, evitando procesar individualmente los millones de registros desde Node.js.
 
@@ -35,7 +35,7 @@ Si alguna etapa falla, se ejecuta ROLLBACK, evitando dejar un estado parcialment
 
 Los importadores reciben una misma conexión PoolClient y no gestionan transacciones individualmente. La transacción es responsabilidad del orquestador de la ingesta.
 
-Idempotencia
+## Idempotencia
 
 La estrategia TRUNCATE + INSERT permite reconstruir completamente el estado de la base de datos a partir de los datasets originales.
 
